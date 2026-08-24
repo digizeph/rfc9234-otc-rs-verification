@@ -1,47 +1,43 @@
 # Strict Only to Customer (OTC) Verification on Route Server Sessions
 
-`draft-herdes-idr-otc-rs-verification-00` — an Internet-Draft that **updates RFC
-9234**. Individual submission targeting the IDR working group.
+`draft-herdes-idr-otc-rs-verification`
 
-## The change
+## Abstract
 
-[RFC 9234][rfc9234] validates the OTC apex property asymmetrically:
+RFC 9234 requires an AS receiving a route from a lateral Peer to verify that the
+Only to Customer (OTC) Attribute equals that Peer's AS number, but imposes no
+equivalent requirement on a Route Server Client (RS-Client) receiving a route
+from a Route Server (RS). Because an RS is always the apex of any path that
+traverses it, a route leak that has transited an RS can be accepted without
+detection.
 
-| Route received from | OTC must equal remote AS? |
-| ------------------- | ------------------------- |
-| Peer (lateral)      | Yes — ingress rule 2      |
-| Route Server        | **No — unchecked**        |
-| Provider            | No, and correctly so      |
+This document updates RFC 9234 by adding one ingress rule: an RS-Client MUST
+treat a route received from an RS as a route leak if its OTC value is not the
+RS's AS number. The check is performed by the RS-Client alone and is therefore
+effective even when the RS does not implement RFC 9234.
 
-A Route Server is always the apex of any path that traverses it, exactly like a
-lateral peer. A route arriving from an RS whose OTC value names some other AS
-has two apexes, is not valley-free, and is a leak. RFC 9234 accepts it.
+## The check
 
-This draft adds the missing check as ingress rule 3:
+[RFC 9234][rfc9234] checks the OTC value on a route received from a lateral
+Peer: the value must equal the Peer's AS number, or the route is a leak. It
+makes no equivalent check on a route received from an RS.
+
+A route server exists to redistribute routes between clients that peer laterally
+through it, so a route reaching an RS-Client from an RS has just crossed that
+lateral exchange and the RS is the apex of its path. Such a route must therefore
+carry either no OTC Attribute or one equal to the RS's AS number. Any other
+value names a different AS as the apex, which means a leak occurred earlier on
+the path and the RS forwarded it on.
+
+The draft adds this as ingress rule 3:
 
 > If a route with the OTC Attribute is received from an RS (i.e., remote AS with
 > an RS Role) and the Attribute has a value that is not equal to the remote
 > (i.e., RS's) AS number, then it is a route leak and MUST be considered
 > ineligible.
 
-That is the only normative change. Rules 1, 2 and 4 and the egress procedure are
-unchanged.
-
-**Why it matters.** The check is performed entirely by the RS-Client from the
-session's remote AS number and the OTC value already on the route, so it still
-works when the route server does not implement RFC 9234 — the case where RFC
-9234's own protection (ingress rule 1 at the RS) never fires. No new capability,
-no wire change, no coordination with the IXP or other clients.
-
-**Why it is safe.** In a compliant deployment the OTC value seen over an RS
-session is always the RS's AS number, whether the RS set it on egress or the
-client set it on ingress. Rule 3 rejects leaks and nothing else. See Section 6.
-
-**Rejected alternative.** Appendix A documents the stricter scheme where the
-RS-Client also marks on egress to the RS and the RS verifies OTC against its own
-AS. It is not specified: a client emitting OTC towards a conforming RS trips
-ingress rule 1, so that RS would reject *every* route from the upgraded client.
-It needs a per-IXP flag day ordered across independent parties.
+Rules 1 and 2 are unchanged, rule 3 of RFC 9234 becomes rule 4, and the egress
+procedure is unchanged.
 
 ## Building
 
@@ -52,16 +48,12 @@ make check    # offline checks (line length, non-ASCII)
 make idnits   # submits the .txt to IETF author-tools
 ```
 
-Current build: **0 errors, 0 flaws, 0 comments** (idnits 2.17.1). The remaining
-warning is the expected "couldn't figure out when the document was first
-submitted", which clears on posting.
-
 BibXML references are vendored under `refs/` so builds work offline and behind
 TLS-intercepting proxies; refresh with `make refs`.
 
 ## Scope
 
-The document is scoped `Updates: 9234`, not `Obsoletes: 9234` — it specifies a
+The document is scoped `Updates: 9234`, not `Obsoletes: 9234`. It specifies a
 single delta to the ingress procedure rather than replacing RFC 9234. If it is
 later respun as a full replacement, the header and the Section 5 framing need to
 change.
