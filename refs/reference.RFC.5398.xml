@@ -1,0 +1,12 @@
+<reference anchor="RFC5398" target="https://www.rfc-editor.org/info/rfc5398">
+  <front>
+    <title>Autonomous System (AS) Number Reservation for Documentation Use</title>
+    <author fullname="G. Huston" initials="G." surname="Huston"/>
+    <date month="December" year="2008"/>
+    <abstract>
+      <t>To reduce the likelihood of conflict and confusion when relating documented examples to deployed systems, two blocks of Autonomous System numbers (ASNs) are reserved for use in examples in RFCs, books, documentation, and the like. This document describes the reservation of two blocks of ASNs as reserved numbers for use in documentation. This memo provides information for the Internet community.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="5398"/>
+  <seriesInfo name="DOI" value="10.17487/RFC5398"/>
+</reference>

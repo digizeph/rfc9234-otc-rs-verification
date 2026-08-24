@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE rfc [
+  <!ENTITY nbsp    "&#160;">
+  <!ENTITY zwsp   "&#8203;">
+  <!ENTITY nbhy   "&#8209;">
+  <!ENTITY wj     "&#8288;">
+]>
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude"
+     ipr="trust200902"
+     docName="draft-herdes-idr-otc-rs-verification-00"
+     category="std"
+     submissionType="IETF"
+     updates="9234"
+     consensus="true"
+     tocInclude="true"
+     tocDepth="3"
+     sortRefs="true"
+     symRefs="true"
+     version="3"
+     xml:lang="en">
+
+  <front>
+    <title abbrev="Strict OTC Verification on RS Sessions">Strict Only to Customer (OTC) Verification on Route Server Sessions</title>
+
+    <seriesInfo name="Internet-Draft" value="draft-herdes-idr-otc-rs-verification-00" stream="IETF"/>
+
+    <author fullname="Bryton Herdes" initials="B." surname="Herdes">
+      <organization>Cloudflare</organization>
+      <address>
+        <email>bryton@cloudflare.com</email>
+      </address>
+    </author>
+
+    <date year="2026" month="August" day="23"/>
+
+    <area>Routing</area>
+    <workgroup>Inter-Domain Routing</workgroup>
+
+    <keyword>BGP</keyword>
+    <keyword>route leak</keyword>
+    <keyword>OTC</keyword>
+    <keyword>route server</keyword>
+    <keyword>IXP</keyword>
+
+    <abstract>
+      <t>
+        RFC 9234 requires an AS receiving a route from a lateral Peer to verify
+        that the Only to Customer (OTC) Attribute equals that Peer's AS number,
+        but imposes no equivalent requirement on a Route Server Client
+        (RS-Client) receiving a route from a Route Server (RS). Because an RS is
+        always the apex of any path that traverses it, a route leak that has
+        transited an RS can be accepted without detection.
+      </t>
+      <t>
+        This document updates RFC 9234 by adding one ingress rule: an RS-Client
+        MUST treat a route received from an RS as a route leak if its OTC value
+        is not the RS's AS number. The check is performed by the RS-Client alone
+        and is therefore effective even when the RS does not implement RFC 9234.
+      </t>
+    </abstract>
+  </front>
+
+  <middle>
+
+    <!-- ================================================================= -->
+    <section anchor="introduction" numbered="true">
+      <name>Introduction</name>
+
+      <t>
+        The OTC Attribute <xref target="RFC9234"/> carries an AS number. It is
+        set where a route first ceases to travel "upward" per the Gao-Rexford
+        model (that is, when it is advertised to a
+        Customer, a lateral Peer, or an RS-Client), and is preserved unchanged
+        thereafter. Its value identifies the AS at the apex of the route's
+        propagation path.
+      </t>
+      <t>
+        Per <xref target="RFC9234"/>, a route received from a lateral Peer must
+        carry an OTC
+        value equal to the Peer's AS number or it is a leak (ingress rule 2). No
+        such check exists for a route received from an RS, even though an RS is
+        always the apex of any path that traverses it, exactly as a lateral Peer
+        is.         A route arriving from an RS whose OTC value does not match the RS's AS
+        number is a leak and <bcp14>MUST</bcp14> be considered ineligible by the
+        RS-Client.
+      </t>
+      <t>
+        <xref target="update"/> extends the OTC check on RS-Clients to verify
+        that the OTC value matches the RS's AS number. It is effective against
+        leaks transiting an RS that does not implement
+        <xref target="RFC9234"/>.
+      </t>
+
+      <section anchor="requirements" numbered="true">
+        <name>Requirements Language</name>
+        <t>
+          The key words "<bcp14>MUST</bcp14>", "<bcp14>MUST NOT</bcp14>",
+          "<bcp14>REQUIRED</bcp14>", "<bcp14>SHALL</bcp14>",
+          "<bcp14>SHALL NOT</bcp14>", "<bcp14>SHOULD</bcp14>",
+          "<bcp14>SHOULD NOT</bcp14>", "<bcp14>RECOMMENDED</bcp14>",
+          "<bcp14>NOT RECOMMENDED</bcp14>", "<bcp14>MAY</bcp14>", and
+          "<bcp14>OPTIONAL</bcp14>" in this document are to be interpreted as
+          described in BCP&nbsp;14 <xref target="RFC2119"/>
+          <xref target="RFC8174"/> when, and only when, they appear in all
+          capitals, as shown here.
+        </t>
+      </section>
+
+      <section anchor="terminology" numbered="true">
+        <name>Terminology</name>
+        <t>
+          Terminology follows <xref target="RFC9234"/>: the BGP Roles Provider,
+          Customer, RS, RS-Client, and Peer are as defined in its Sections 3.1
+          and 4, and "local AS" and "remote AS" are the two ends of an eBGP
+          session. "Route is ineligible" is as in <xref target="RFC4271"/>. A
+          transparent RS does not insert its own AS number into the AS_PATH of
+          routes it redistributes <xref target="RFC7947"/>; most production
+          route servers are transparent. Example AS numbers are from the
+          documentation range <xref target="RFC5398"/>.
+        </t>
+      </section>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="problem" numbered="true">
+      <name>Problem Statement</name>
+
+      <t>
+        <xref target="RFC9234"/> checks the OTC value on a route received from a
+        lateral Peer: the value must equal the Peer's AS number, or the route is
+        a         leak. It makes no equivalent check on a route received from an RS.
+      </t>
+      <t>
+        A route server exists to redistribute routes
+        between clients that peer laterally through it. A route that reaches an
+        RS-Client from an RS has therefore just crossed that lateral exchange,
+        and the RS is the highest point on the route's path so far: its apex, in
+        the terms of the Gao-Rexford model <xref target="GAO-REXFORD"/> and the
+        propagation rules in Section 3.1 of <xref target="RFC9234"/>. That is
+        true of transparent and non-transparent route servers alike, since
+        transparency affects only whether the RS appears in the AS_PATH, not its
+        position in the relationship graph.
+      </t>
+      <t>
+        A route received from an RS must therefore carry either no OTC Attribute
+        or one equal to the RS's AS number. Any other value names a different AS
+        as the apex, which signals a leak has occurred and has been forwarded on
+        by the RS.
+      </t>
+      <t>
+        <xref target="fig-leak"/> shows such a leak. Vertical position reflects
+        the relationship hierarchy, so the RS appears at the apex of the
+        exchange it mediates and the path dips into a valley at AS 64497. The
+        OTC value set by AS 64496 is preserved unchanged all the way to
+        AS 64499.
+      </t>
+
+      <figure anchor="fig-leak">
+        <name>A route leak transiting a route server undetected</name>
+        <artwork type="ascii-art" align="left"><![CDATA[
++--------------------+       +------------------------+
+| Provider (AS64496) |       | Route Server (AS64498) |
++--------------------+       | RFC 9234 non-compliant |
+          \                  +------------------------+
+           \ prefix(P)         /\              \
+            \ OTC=64496       /                 \ OTC=64496
+             \               / route             \
+              \/            / leak(P)             \/
+   +---------------------+              +---------------------+
+   | RS-Client (AS64497) |              | RS-Client (AS64499) |
+   +---------------------+              | RFC 9234 compliant  |
+                                        +---------------------+
+
+                                        remote AS=64498,
+                                        OTC=64496 -> leak,
+                                        but accepted
+]]></artwork>
+      </figure>
+
+      <t>
+        AS 64499 accepts this route under <xref target="RFC9234"/>. The leak is
+        of transit-provider prefixes to a lateral peering, Type 3 in the
+        taxonomy of <xref target="RFC7908"/>. This document extends the rules in
+        Section 5 of <xref target="RFC9234"/> to improve route leak detection.
+      </t>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="update" numbered="true">
+      <name>Update to the OTC Ingress Procedure</name>
+
+      <t>
+        This section updates Section 5 of <xref target="RFC9234"/>. The ingress
+        procedure applying to the processing of the OTC Attribute on route
+        receipt is replaced in its entirety by the following:
+      </t>
+      <ol spacing="normal" type="1">
+        <li>
+          If a route with the OTC Attribute is received from a Customer or an
+          RS-Client, then it is a route leak and <bcp14>MUST</bcp14> be
+          considered ineligible.
+        </li>
+        <li>
+          If a route with the OTC Attribute is received from a Peer (i.e.,
+          remote AS with a Peer Role) and the Attribute has a value that is not
+          equal to the remote (i.e., Peer's) AS number, then it is a route leak
+          and <bcp14>MUST</bcp14> be considered ineligible.
+        </li>
+        <li>
+          If a route with the OTC Attribute is received from an RS (i.e., remote
+          AS with an RS Role) and the Attribute has a value that is not equal to
+          the remote (i.e., RS's) AS number, then it is a route leak and
+          <bcp14>MUST</bcp14> be considered ineligible.
+        </li>
+        <li>
+          If a route is received from a Provider, a Peer, or an RS and the OTC
+          Attribute is not present, then it <bcp14>MUST</bcp14> be added with a
+          value equal to the AS number of the remote AS.
+        </li>
+      </ol>
+      <t>
+        Rule 3 is new and is the sole normative change made by this document.
+        Rules 1 and 2 are unchanged, rule 4 is rule 3 of
+        <xref target="RFC9234"/> renumbered, and the egress procedure is
+        unchanged: an RS-Client continues not to attach an OTC Attribute to
+        routes it advertises to an RS.
+      </t>
+      <t>
+        The remote AS number used in rules 2, 3, and 4 is the AS number
+        configured for the session. It <bcp14>MUST NOT</bcp14> be inferred from
+        the AS_PATH: a transparent RS does not insert its own AS number into the
+        AS_PATH of routes it redistributes <xref target="RFC7947"/>, so the RS's
+        AS number need not appear there at all.
+      </t>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="compat" numbered="true">
+      <name>Backwards Compatibility</name>
+
+      <t>
+        Rule 3 cannot render ineligible any route produced by a deployment in
+        which all participating ASes comply with <xref target="RFC9234"/>.
+        Consider the OTC value arriving at an RS-Client over an RS session:
+      </t>
+      <ul spacing="normal">
+        <li>
+          If the RS complies, ingress rule 1 has already caused it to discard
+          any route received from an RS-Client bearing an OTC Attribute, so
+          everything it redistributes arrived without one and egress rule 1
+          attaches the RS's own AS number.
+        </li>
+        <li>
+          If the RS attaches no OTC Attribute, the route arrives without one and
+          rule 4 attaches the remote AS number, which is the RS's AS number.
+        </li>
+      </ul>
+      <t>
+        Both cases yield the RS's AS number. Rule 3 can therefore be triggered
+        only by a route whose OTC Attribute was set before it reached the RS,
+        which per <xref target="problem"/> requires some AS on the path to have
+        violated the egress procedure. Rule 3 rejects leaks and nothing else.
+      </t>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="ops" numbered="true">
+      <name>Operational Considerations</name>
+      <t>
+        TODO.
+      </t>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="iana" numbered="true">
+      <name>IANA Considerations</name>
+      <t>
+        This document has no IANA actions.
+      </t>
+    </section>
+
+    <!-- ================================================================= -->
+    <section anchor="security" numbered="true">
+      <name>Security Considerations</name>
+      <t>
+        TODO.
+      </t>
+    </section>
+
+  </middle>
+
+  <!-- ================================================================= -->
+  <back>
+
+    <references>
+      <name>References</name>
+
+      <references>
+        <name>Normative References</name>
+        <xi:include href="refs/reference.RFC.2119.xml"/>
+        <xi:include href="refs/reference.RFC.4271.xml"/>
+        <!-- TODO: restore RFC 6793 (four-octet AS numbers / AS_TRANS) if the
+             remote-AS determination text returns; vendored at
+             refs/reference.RFC.6793.xml.
+        <xi:include href="refs/reference.RFC.6793.xml"/>
+        -->
+        <xi:include href="refs/reference.RFC.7947.xml"/>
+        <xi:include href="refs/reference.RFC.8174.xml"/>
+        <xi:include href="refs/reference.RFC.9234.xml"/>
+      </references>
+
+      <references>
+        <name>Informative References</name>
+        <!-- TODO: restore RFC 4272 (BGP Security Vulnerabilities Analysis)
+             when the Security Considerations section is written; the bibxml
+             entry is already vendored at refs/reference.RFC.4272.xml.
+        <xi:include href="refs/reference.RFC.4272.xml"/>
+        -->
+        <xi:include href="refs/reference.RFC.5398.xml"/>
+        <!-- TODO: restore RFC 7606 (revised error handling) if the malformed-
+             attribute text returns; vendored at refs/reference.RFC.7606.xml.
+        <xi:include href="refs/reference.RFC.7606.xml"/>
+        -->
+        <!-- TODO: restore RFC 7705 (AS migration) if the remote-AS
+             determination text returns; vendored at
+             refs/reference.RFC.7705.xml.
+        <xi:include href="refs/reference.RFC.7705.xml"/>
+        -->
+        <xi:include href="refs/reference.RFC.7908.xml"/>
+
+        <reference anchor="GAO-REXFORD" target="https://ieeexplore.ieee.org/document/974523">
+          <front>
+            <title>Stable Internet routing without global coordination</title>
+            <author initials="L." surname="Gao" fullname="Lixin Gao"/>
+            <author initials="J." surname="Rexford" fullname="Jennifer Rexford"/>
+            <date year="2001" month="December"/>
+          </front>
+          <seriesInfo name="IEEE/ACM Transactions on Networking" value="Volume 9, Issue 6, pp. 689-692"/>
+          <seriesInfo name="DOI" value="10.1109/90.974523"/>
+        </reference>
+      </references>
+    </references>
+
+  </back>
+</rfc>

@@ -1,0 +1,17 @@
+# Build artefacts
+draft-*.txt
+draft-*.html
+draft-*.pdf
+
+# Toolchain
+.venv/
+__pycache__/
+
+# xml2rfc
+.xml2rfc-cache/
+*.exp.xml
+
+# Editors / OS
+.DS_Store
+*.swp
+*~

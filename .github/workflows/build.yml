@@ -1,0 +1,60 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DRAFT: draft-herdes-idr-otc-rs-verification-00
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install xml2rfc
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install xml2rfc
+
+      - name: Build text and HTML
+        run: |
+          xml2rfc --allow-local-file-access --text --html "$DRAFT.xml"
+
+      - name: Fail on xml2rfc warnings
+        run: |
+          xml2rfc --allow-local-file-access --text "$DRAFT.xml" 2>warnings.txt
+          if grep -qiE 'warning|error' warnings.txt; then
+            echo "xml2rfc emitted warnings:"
+            cat warnings.txt
+            exit 1
+          fi
+
+      - name: Offline checks
+        run: |
+          long=$(awk 'length>72' "$DRAFT.txt" | wc -l)
+          echo "lines over 72 columns: $long"
+          if [ "$long" -ne 0 ]; then exit 1; fi
+
+      - name: idnits
+        continue-on-error: true
+        run: |
+          curl -sS -m 180 -X POST -F "file=@$DRAFT.txt" \
+            https://author-tools.ietf.org/api/idnits | sed -n '1,45p'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.DRAFT }}
+          path: |
+            ${{ env.DRAFT }}.txt
+            ${{ env.DRAFT }}.html
