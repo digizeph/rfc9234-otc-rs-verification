@@ -31,6 +31,19 @@
       </address>
     </author>
 
+    <author fullname="Alexander Azimov" initials="A." surname="Azimov">
+      <organization>Yandex</organization>
+      <address>
+        <postal>
+          <street>Ulitsa Lva Tolstogo 16</street>
+          <city>Moscow</city>
+          <code>119021</code>
+          <country>Russian Federation</country>
+        </postal>
+        <email>a.e.azimov@gmail.com</email>
+      </address>
+    </author>
+
     <area>Routing</area>
     <workgroup>Inter-Domain Routing</workgroup>
 
