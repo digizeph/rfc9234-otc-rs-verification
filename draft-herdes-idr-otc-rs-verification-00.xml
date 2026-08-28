@@ -42,12 +42,11 @@
 
     <abstract>
       <t>
-        RFC 9234 requires an AS receiving a route from a lateral Peer to verify that the Only to Customer (OTC) Attribute equals that Peer's AS number, but imposes no equivalent requirement on a Route Server Client (RS-Client) receiving a route from a Route Server (RS).
-        Because an RS is always the apex of any path that traverses it, a route leak that has transited an RS can be accepted without detection.
+        <xref target="RFC9234"/> specifies how an AS receiving a route from a lateral Peer can check if route was lekaed, but doesn't specify any checks for routes received from Route Server (RS).
+        This makes quility of filtering dependent on whether the RS implements <xref target="RFC9234"/>.
       </t>
       <t>
-        This document updates RFC 9234 by adding one ingress rule: an RS-Client MUST treat a route received from an RS as a route leak if its OTC value is not the RS's AS number.
-        The check is performed by the RS-Client alone and is therefore effective even when the RS does not implement RFC 9234.
+        This document updates <xref target="RFC9234"/> by adding complimentary ingress check at RS-Client.
       </t>
     </abstract>
   </front>
