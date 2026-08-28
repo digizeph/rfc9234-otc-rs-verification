@@ -5,8 +5,7 @@
   <!ENTITY nbhy   "&#8209;">
   <!ENTITY wj     "&#8288;">
 ]>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude"
-     ipr="trust200902"
+<rfc ipr="trust200902"
      docName="draft-herdes-idr-otc-rs-verification-00"
      category="std"
      submissionType="IETF"
@@ -55,11 +54,11 @@
 
     <abstract>
       <t>
-        <xref target="RFC9234"/> specifies how an AS receiving a route from a lateral Peer can check if route was lekaed, but doesn't specify any checks for routes received from Route Server (RS).
-        This makes quility of filtering dependent on whether the RS implements <xref target="RFC9234"/>.
+        RFC 9234 specifies how an AS receiving a route from a lateral Peer can check if route was lekaed, but doesn't specify any checks for routes received from Route Server (RS).
+        This makes quility of filtering dependent on whether the RS implements RFC 9234.
       </t>
       <t>
-        This document updates <xref target="RFC9234"/> by adding complimentary ingress check by RS-Client.
+        This document updates RFC 9234 by adding complimentary ingress check by RS-Client.
       </t>
     </abstract>
   </front>
@@ -164,12 +163,96 @@
 
       <references>
         <name>Normative References</name>
-        <xi:include href="refs/reference.RFC.2119.xml"/>
-        <xi:include href="refs/reference.RFC.7947.xml"/>
-        <xi:include href="refs/reference.RFC.8174.xml"/>
-        <xi:include href="refs/reference.RFC.9234.xml"/>
-        <xi:include href="refs/reference.RFC.5398.xml"/>
-        <xi:include href="refs/reference.RFC.4271.xml"/>
+        <reference anchor="RFC2119" target="https://www.rfc-editor.org/info/rfc2119">
+          <front>
+            <title>Key words for use in RFCs to Indicate Requirement Levels</title>
+            <author fullname="S. Bradner" initials="S." surname="Bradner"/>
+            <date month="March" year="1997"/>
+            <abstract>
+              <t>In many standards track documents several words are used to signify the requirements in the specification. These words are often capitalized. This document defines these words as they should be interpreted in IETF documents. This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="BCP" value="14"/>
+          <seriesInfo name="RFC" value="2119"/>
+          <seriesInfo name="DOI" value="10.17487/RFC2119"/>
+        </reference>
+        <reference anchor="RFC7947" target="https://www.rfc-editor.org/info/rfc7947">
+          <front>
+            <title>Internet Exchange BGP Route Server</title>
+            <author fullname="E. Jasinska" initials="E." surname="Jasinska"/>
+            <author fullname="N. Hilliard" initials="N." surname="Hilliard"/>
+            <author fullname="R. Raszuk" initials="R." surname="Raszuk"/>
+            <author fullname="N. Bakker" initials="N." surname="Bakker"/>
+            <date month="September" year="2016"/>
+            <abstract>
+              <t>This document outlines a specification for multilateral interconnections at Internet Exchange Points (IXPs). Multilateral interconnection is a method of exchanging routing information among three or more External BGP (EBGP) speakers using a single intermediate broker system, referred to as a route server. Route servers are typically used on shared access media networks, such as IXPs, to facilitate simplified interconnection among multiple Internet routers.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7947"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7947"/>
+        </reference>
+        <reference anchor="RFC8174" target="https://www.rfc-editor.org/info/rfc8174">
+          <front>
+            <title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title>
+            <author fullname="B. Leiba" initials="B." surname="Leiba"/>
+            <date month="May" year="2017"/>
+            <abstract>
+              <t>RFC 2119 specifies common key words that may be used in protocol specifications. This document aims to reduce the ambiguity by clarifying that only UPPERCASE usage of the key words have the defined special meanings.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="BCP" value="14"/>
+          <seriesInfo name="RFC" value="8174"/>
+          <seriesInfo name="DOI" value="10.17487/RFC8174"/>
+        </reference>
+        <reference anchor="RFC9234" target="https://www.rfc-editor.org/info/rfc9234">
+          <front>
+            <title>Route Leak Prevention and Detection Using Roles in UPDATE and OPEN Messages</title>
+            <author fullname="A. Azimov" initials="A." surname="Azimov"/>
+            <author fullname="E. Bogomazov" initials="E." surname="Bogomazov"/>
+            <author fullname="R. Bush" initials="R." surname="Bush"/>
+            <author fullname="K. Patel" initials="K." surname="Patel"/>
+            <author fullname="K. Sriram" initials="K." surname="Sriram"/>
+            <date month="May" year="2022"/>
+            <abstract>
+              <t>Route leaks are the propagation of BGP prefixes that violate assumptions of BGP topology relationships, e.g., announcing a route learned from one transit provider to another transit provider or a lateral (i.e., non-transit) peer or announcing a route learned from one lateral peer to another lateral peer or a transit provider. These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between autonomous systems (ASes). Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the External BGP (eBGP) neighbor, or enforcement of the two eBGP speakers agreeing on the peering relationship. This document enhances the BGP OPEN message to establish an agreement of the peering relationship on each eBGP session between autonomous systems in order to enforce appropriate configuration on both sides. Propagated routes are then marked according to the agreed relationship, allowing both prevention and detection of route leaks.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="9234"/>
+          <seriesInfo name="DOI" value="10.17487/RFC9234"/>
+        </reference>
+        <reference anchor="RFC4271" target="https://www.rfc-editor.org/info/rfc4271">
+          <front>
+            <title>A Border Gateway Protocol 4 (BGP-4)</title>
+            <author fullname="Y. Rekhter" initials="Y." role="editor" surname="Rekhter"/>
+            <author fullname="T. Li" initials="T." role="editor" surname="Li"/>
+            <author fullname="S. Hares" initials="S." role="editor" surname="Hares"/>
+            <date month="January" year="2006"/>
+            <abstract>
+              <t>This document discusses the Border Gateway Protocol (BGP), which is an inter-Autonomous System routing protocol.</t>
+              <t>The primary function of a BGP speaking system is to exchange network reachability information with other BGP systems. This network reachability information includes information on the list of Autonomous Systems (ASes) that reachability information traverses. This information is sufficient for constructing a graph of AS connectivity for this reachability from which routing loops may be pruned, and, at the AS level, some policy decisions may be enforced.</t>
+              <t>BGP-4 provides a set of mechanisms for supporting Classless Inter-Domain Routing (CIDR). These mechanisms include support for advertising a set of destinations as an IP prefix, and eliminating the concept of network "class" within BGP. BGP-4 also introduces mechanisms that allow aggregation of routes, including aggregation of AS paths.</t>
+              <t>This document obsoletes RFC 1771. [STANDARDS-TRACK]</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="4271"/>
+          <seriesInfo name="DOI" value="10.17487/RFC4271"/>
+        </reference>
+      </references>
+
+      <references>
+        <name>Informative References</name>
+        <reference anchor="RFC5398" target="https://www.rfc-editor.org/info/rfc5398">
+          <front>
+            <title>Autonomous System (AS) Number Reservation for Documentation Use</title>
+            <author fullname="G. Huston" initials="G." surname="Huston"/>
+            <date month="December" year="2008"/>
+            <abstract>
+              <t>To reduce the likelihood of conflict and confusion when relating documented examples to deployed systems, two blocks of Autonomous System numbers (ASNs) are reserved for use in examples in RFCs, books, documentation, and the like. This document describes the reservation of two blocks of ASNs as reserved numbers for use in documentation. This memo provides information for the Internet community.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="5398"/>
+          <seriesInfo name="DOI" value="10.17487/RFC5398"/>
+        </reference>
       </references>
 
     </references>

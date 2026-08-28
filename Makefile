@@ -3,8 +3,9 @@ VENV    := .venv
 XML2RFC := $(VENV)/bin/xml2rfc
 PYTHON  ?= python3
 
-# Reference files vendored under refs/ so the build works offline and behind
-# TLS-intercepting proxies. Regenerate with `make refs`.
+# BibXML snapshots are vendored under refs/ and refreshed with `make refs`.
+# Used references are embedded in the draft so local and IETF builds need no
+# local-file or network access.
 REFS := 2119 4271 4272 5398 6793 7606 7705 7908 7947 8174 9234
 BIBXML := https://bib.ietf.org/public/rfc/bibxml
 
@@ -22,10 +23,10 @@ txt: $(DRAFT).txt
 html: $(DRAFT).html
 
 $(DRAFT).txt: $(DRAFT).xml $(XML2RFC)
-	$(XML2RFC) --allow-local-file-access --text $<
+	$(XML2RFC) --text $<
 
 $(DRAFT).html: $(DRAFT).xml $(XML2RFC)
-	$(XML2RFC) --allow-local-file-access --html $<
+	$(XML2RFC) --html $<
 
 # Re-fetch the vendored bibxml references.
 refs:

@@ -29,11 +29,11 @@ jobs:
 
       - name: Build text and HTML
         run: |
-          xml2rfc --allow-local-file-access --text --html "$DRAFT.xml"
+          xml2rfc --text --html "$DRAFT.xml"
 
       - name: Fail on xml2rfc warnings
         run: |
-          xml2rfc --allow-local-file-access --text "$DRAFT.xml" 2>warnings.txt
+          xml2rfc --text "$DRAFT.xml" 2>warnings.txt
           if grep -qiE 'warning|error' warnings.txt; then
             echo "xml2rfc emitted warnings:"
             cat warnings.txt

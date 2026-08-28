@@ -48,8 +48,9 @@ make check    # offline checks (line length, non-ASCII)
 make idnits   # submits the .txt to IETF author-tools
 ```
 
-BibXML references are vendored under `refs/` so builds work offline and behind
-TLS-intercepting proxies; refresh with `make refs`.
+Reference metadata is embedded in the draft so its XML can be submitted
+directly to the IETF Datatracker and built offline. BibXML snapshots are
+vendored under `refs/`; refresh them with `make refs`.
 
 ## Scope
 
