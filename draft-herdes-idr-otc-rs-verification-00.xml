@@ -137,6 +137,50 @@
       </t>
     </section>
 
+    <!-- ================================================================= -->
+    <section anchor="compat" numbered="true">
+      <name>Backwards Compatibility</name>
+      <t>
+        The rule in <xref target="update"/> cannot render ineligible any route
+        accepted under <xref target="RFC9234"/> alone. Under the egress
+        procedure of Section 5 of <xref target="RFC9234"/>, the only compliant
+        way for a route containing the OTC Attribute to reach an RS-Client is
+        for the RS to attach its own AS number when advertising a route that
+        arrived without the attribute. A route arriving at an RS-Client over
+        an RS session is therefore in one of three states:
+      </t>
+      <ul spacing="normal">
+        <li>
+          The OTC Attribute is not present. The ingress procedure of
+          Section 5 of <xref target="RFC9234"/> has the RS-Client attach the
+          remote AS number, which is the RS's AS number. The route is
+          unaffected by the rule in <xref target="update"/>.
+        </li>
+        <li>
+          The OTC Attribute equals the RS's AS number: the value produced by
+          a compliant RS. The rule in <xref target="update"/> accepts it.
+        </li>
+        <li>
+          The OTC Attribute equals some other AS number. For such a value to
+          arrive, some AS on the path must have violated
+          <xref target="RFC9234"/>: an RS-Client propagated a route already
+          containing the OTC Attribute toward its RS, contrary to the egress
+          procedure; or a route containing the OTC Attribute reached the RS
+          from an RS-Client and was redistributed rather than discarded,
+          contrary to the ingress procedure; or the RS attached an OTC value
+          other than its own AS number, contrary to the egress procedure.
+          Each of these is a route leak as described in
+          <xref target="problem"/>.
+        </li>
+      </ul>
+      <t>
+        The rule in <xref target="update"/> therefore rejects only routes
+        whose propagation already violated <xref target="RFC9234"/>, and it
+        leaves the set of routes accepted under <xref target="RFC9234"/>
+        unchanged.
+      </t>
+    </section>
+
     <section anchor="ops" numbered="true">
       <name>Operational Considerations</name>
       <t>
