@@ -24,8 +24,15 @@
     <seriesInfo name="Internet-Draft" value="draft-herdes-idr-otc-rs-verification-00" stream="IETF"/>
 
     <author fullname="Bryton Herdes" initials="B." surname="Herdes">
-      <organization>Cloudflare</organization>
+      <organization abbrev="Cloudflare">Cloudflare, Inc.</organization>
       <address>
+        <postal>
+          <street/>
+          <city>Champaign</city>
+          <region>Illinois</region>
+          <code/>
+          <country>United States of America</country>
+        </postal>
         <email>bryton@cloudflare.com</email>
       </address>
     </author>
