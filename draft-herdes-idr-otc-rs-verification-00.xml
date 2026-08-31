@@ -157,17 +157,7 @@
     <section anchor="security" numbered="true">
       <name>Security Considerations</name>
       <t>
-        The OTC Attribute is an unsigned optional transitive BGP path attribute.
-        An AS on the route's path, or a participant in the exchange fabric, can
-        modify it in transit: in particular, it can insert a foreign OTC value
-        into an otherwise legitimate route. Once the rule in
-        <xref target="update"/> is deployed, an RS-Client applying it would
-        treat such a route as ineligible, so the rule creates a new
-        route-suppression trigger relative to <xref target="RFC9234"/>, whose
-        Security Considerations already acknowledge the possibility of
-        attribute tampering. The exposure is bounded by the fact that the
-        tampering AS must already be on the route's path or be a participant
-        in the exchange fabric.
+        The security considerations of <xref target="RFC9234"/> Section 8 apply.
       </t>
     </section>
 
